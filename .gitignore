@@ -1,3 +1,8 @@
 Data/*
+Glove/vocab_full.txt
+Glove/vocab_cut.txt
+Glove/vocab.pkl
+Glove/cooc.pkl
+Glove/embeddings.npy
 BERT-based/artifacts/
 BERT-based/output/
