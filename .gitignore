@@ -7,3 +7,4 @@ Glove/embeddings.npy
 BERT-based/artifacts/
 BERT-based/output/
 BERT-based/wandb/
+BERT-based/__pycache__/
