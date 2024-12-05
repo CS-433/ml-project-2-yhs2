@@ -6,3 +6,4 @@ Glove/cooc.pkl
 Glove/embeddings.npy
 BERT-based/artifacts/
 BERT-based/output/
+BERT-based/wandb/
