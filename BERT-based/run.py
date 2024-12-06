@@ -160,6 +160,17 @@ class DataTrainingArguments:
         default=None, metadata={"help":"use wandb model"}
     )
 
+    contrastive_learning: Optional[bool] = field(
+        default=False, metadata={"help":"use contrastive learning"}
+    )
+    
+    temperature: Optional[float] = field(
+        default=0.05, metadata={"help":"temperature for contrastive learning"}
+    )
+    
+    contrastive_learning_weight: Optional[float] = field(
+        default=0.1, metadata={"help":"contrastive learning weight"}
+    )
     # def __post_init__(self):
     #     if self.dataset_name is not None:
     #         pass
@@ -500,6 +511,10 @@ def main():
     )
     model.tokenizer = tokenizer
 
+    # for contrastive learning
+    model.contrastive_learning = data_args.contrastive_learning
+    model.temperature = data_args.temperature
+    model.contrastive_learning_weight = data_args.contrastive_learning_weight
     
     # Model 2
     if data_args.twomodelloss_wandb_model2:
