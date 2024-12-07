@@ -449,6 +449,12 @@ class MyNewRobertaForSequenceClassification(RobertaPreTrainedModel):
         self.model2_tokenizer = None
         self.model3 = None
         self.model3_tokenizer = None
+        
+        # for contrastive learning
+        self.contrastive_learning = None
+        self.temperature = None
+        self.contrastive_learning_weight = None
+        
         # Initialize weights and apply final processing
         self.post_init()
 
@@ -506,6 +512,15 @@ class MyNewRobertaForSequenceClassification(RobertaPreTrainedModel):
 
         pooled_output = self.dropout(pooled_output)
         logits = self.classifier(pooled_output)
+        
+        
+        # If contrastive learning is enabled, compute the contrastive loss using dropout twice
+        if self.contrastive_learning:
+            pooled_output_1 = self.dropout(pooled_output)  # Dropout for the first view
+            pooled_output_2 = self.dropout(pooled_output)  # Dropout for the second view
+            contrastive_loss = self.compute_contrastive_loss(pooled_output_1, pooled_output_2, self.temperature)
+        else:
+            contrastive_loss = None
 
         loss = None
         if labels is not None:
@@ -547,6 +562,13 @@ class MyNewRobertaForSequenceClassification(RobertaPreTrainedModel):
             elif self.config.problem_type == "multi_label_classification":
                 loss_fct = BCEWithLogitsLoss()
                 loss = loss_fct(logits, labels)
+                
+        # Combine losses if both are present
+        if loss is not None and contrastive_loss is not None:
+            loss += contrastive_loss * self.contrastive_learning_weight
+        elif contrastive_loss is not None:
+            loss = contrastive_loss        
+        
         if not return_dict:
             output = (logits,) + outputs[2:]
             return ((loss,) + output) if loss is not None else output
@@ -557,3 +579,24 @@ class MyNewRobertaForSequenceClassification(RobertaPreTrainedModel):
             hidden_states=outputs.hidden_states,
             attentions=outputs.attentions,
         )
+    
+    def compute_contrastive_loss(self, pooled_output_1: torch.Tensor, pooled_output_2: torch.Tensor, temperature: float) -> torch.Tensor:
+        """
+        Computes contrastive loss for SimCSE using two different dropout views.
+        """
+        batch_size = pooled_output_1.size(0)
+
+        # Normalize the pooled outputs for contrastive loss
+        pooled_output_1 = F.normalize(pooled_output_1, p=2, dim=1)
+        pooled_output_2 = F.normalize(pooled_output_2, p=2, dim=1)
+
+        # Compute similarity matrix between the two views
+        similarity_matrix = torch.matmul(pooled_output_1, pooled_output_2.T) / temperature
+
+        # Create labels for contrastive learning
+        labels = torch.arange(batch_size).to(pooled_output_1.device)
+
+        # Compute cross-entropy loss
+        loss_fct = CrossEntropyLoss()
+        loss = loss_fct(similarity_matrix, labels)
+        return loss
