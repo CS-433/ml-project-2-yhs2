@@ -33,6 +33,8 @@ from transformers import (
     AutoConfig,
     AutoModelForSequenceClassification,
     AutoTokenizer,
+    RobertaForSequenceClassification,
+    BertForSequenceClassification,
     DataCollatorWithPadding,
     EvalPrediction,
     HfArgumentParser,
@@ -159,7 +161,7 @@ class DataTrainingArguments:
     twomodelloss_wandb_model3: Optional[str] = field(
         default=None, metadata={"help":"use wandb model"}
     )
-
+    
     contrastive_learning: Optional[bool] = field(
         default=False, metadata={"help":"use contrastive learning"}
     )
@@ -500,22 +502,34 @@ def main():
         use_auth_token=True if model_args.use_auth_token else None,
     )
     
-    model = MyNewBertForSequenceClassification.from_pretrained(
-        model_args.model_name_or_path,
-        from_tf=bool(".ckpt" in model_args.model_name_or_path),
-        config=config,
-        cache_dir=model_args.cache_dir,
-        revision=model_args.model_revision,
-        use_auth_token=True if model_args.use_auth_token else None,
-        ignore_mismatched_sizes=model_args.ignore_mismatched_sizes,
-    )
+    # check if the model is a bert model or roberta model
+    if config.model_type == "bert":
+        model = MyNewBertForSequenceClassification.from_pretrained(
+            model_args.model_name_or_path,
+            from_tf=bool(".ckpt" in model_args.model_name_or_path),
+            config=config,
+            cache_dir=model_args.cache_dir,
+            revision=model_args.model_revision,
+            use_auth_token=True if model_args.use_auth_token else None,
+            ignore_mismatched_sizes=model_args.ignore_mismatched_sizes,
+        )
+    else:
+        model = MyNewRobertaForSequenceClassification.from_pretrained(
+            model_args.model_name_or_path,
+            from_tf=bool(".ckpt" in model_args.model_name_or_path),
+            config=config,
+            cache_dir=model_args.cache_dir,
+            revision=model_args.model_revision,
+            use_auth_token=True if model_args.use_auth_token else None,
+            ignore_mismatched_sizes=model_args.ignore_mismatched_sizes,
+        )
+
     model.tokenizer = tokenizer
 
     # for contrastive learning
     model.contrastive_learning = data_args.contrastive_learning
     model.temperature = data_args.temperature
     model.contrastive_learning_weight = data_args.contrastive_learning_weight
-    
     # Model 2
     if data_args.twomodelloss_wandb_model2:
         model2_config = AutoConfig.from_pretrained(
@@ -533,15 +547,27 @@ def main():
             use_auth_token=True if model_args.use_auth_token else None,
         )
         print(data_args.twomodelloss_wandb_model2)
-        model2 = MyBertForSequenceClassification.from_pretrained(
-            data_args.twomodelloss_wandb_model2,
-            from_tf=bool(".ckpt" in data_args.twomodelloss_wandb_model2),
-            config=model2_config,
-            cache_dir=model_args.cache_dir,
-            revision=model_args.model_revision,
-            use_auth_token=True if model_args.use_auth_token else None,
-            ignore_mismatched_sizes=model_args.ignore_mismatched_sizes,
-        )
+        
+        if model2_config.model_type == "bert":
+            model2 = MyBertForSequenceClassification.from_pretrained(
+                data_args.twomodelloss_wandb_model2,
+                from_tf=bool(".ckpt" in data_args.twomodelloss_wandb_model2),
+                config=model2_config,
+                cache_dir=model_args.cache_dir,
+                revision=model_args.model_revision,
+                use_auth_token=True if model_args.use_auth_token else None,
+                ignore_mismatched_sizes=model_args.ignore_mismatched_sizes,
+            )
+        else:
+            model2 = RobertaForSequenceClassification.from_pretrained(
+                data_args.twomodelloss_wandb_model2,
+                from_tf=bool(".ckpt" in data_args.twomodelloss_wandb_model2),
+                config=model2_config,
+                cache_dir=model_args.cache_dir,
+                revision=model_args.model_revision,
+                use_auth_token=True if model_args.use_auth_token else None,
+                ignore_mismatched_sizes=model_args.ignore_mismatched_sizes,
+            )
         
         model.model2 = model2
         model.model2_tokenizer = model2_tokenizer
@@ -563,32 +589,30 @@ def main():
             use_auth_token=True if model_args.use_auth_token else None,
         )
         print(data_args.twomodelloss_wandb_model3)
-        model3 = MyBertForSequenceClassification.from_pretrained(
-            data_args.twomodelloss_wandb_model3,
-            from_tf=bool(".ckpt" in data_args.twomodelloss_wandb_model3),
-            config=model3_config,
-            cache_dir=model_args.cache_dir,
-            revision=model_args.model_revision,
-            use_auth_token=True if model_args.use_auth_token else None,
-            ignore_mismatched_sizes=model_args.ignore_mismatched_sizes,
-        )
+        
+        if model3_config.model_type == "bert":
+            model3 = MyBertForSequenceClassification.from_pretrained(
+                data_args.twomodelloss_wandb_model3,
+                from_tf=bool(".ckpt" in data_args.twomodelloss_wandb_model3),
+                config=model3_config,
+                cache_dir=model_args.cache_dir,
+                revision=model_args.model_revision,
+                use_auth_token=True if model_args.use_auth_token else None,
+                ignore_mismatched_sizes=model_args.ignore_mismatched_sizes,
+            )
+        else:
+            model3 = RobertaForSequenceClassification.from_pretrained(
+                data_args.twomodelloss_wandb_model3,
+                from_tf=bool(".ckpt" in data_args.twomodelloss_wandb_model3),
+                config=model3_config,
+                cache_dir=model_args.cache_dir,
+                revision=model_args.model_revision,
+                use_auth_token=True if model_args.use_auth_token else None,
+                ignore_mismatched_sizes=model_args.ignore_mismatched_sizes,
+            )
         
         model.model3 = model3
         model.model3_tokenizer = model3_tokenizer
-
-    # Preprocessing the raw_datasets
-    # if data_args.task_name is not None:
-    #     sentence1_key, sentence2_key = task_to_keys[data_args.task_name]
-    # else:
-    #     # Again, we try to have some nice defaults but don't hesitate to tweak to your use case.
-    #     non_label_column_names = [name for name in raw_datasets["train"].column_names if name != "label"]
-    #     if "sentence1" in non_label_column_names and "sentence2" in non_label_column_names:
-    #         sentence1_key, sentence2_key = "sentence1", "sentence2"
-    #     else:
-    #         if len(non_label_column_names) >= 2:
-    #             sentence1_key, sentence2_key = non_label_column_names[:2]
-    #         else:
-    #             sentence1_key, sentence2_key = non_label_column_names[0], None
     sentence1_key, sentence2_key = "sentence1", None
 
     # Padding strategy
