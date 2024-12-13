@@ -4,3 +4,6 @@ Line 1226510 train_neg_full.txt:
 cr7 my n***a i hate it had to be him
 Line 1234569 train_neg_full.txt:
 can't believe duane went out , no ni****s in the apprentice anymore
+
+privacy concern:
+could identify user by searching the post
