@@ -100,12 +100,52 @@ def compute_probs(model, tokenizer, sentences):
         print(sentence_prob)
     return probs
 
+'''
 def calculate_perplexity(sentence, model, tokenizer, device):
     inputs = tokenizer(sentence, return_tensors="pt", truncation=True, max_length=512).to(device)
     with torch.no_grad():
         outputs = model(**inputs, labels=inputs["input_ids"])
     loss = outputs.loss.item()  # Cross-entropy loss
     return math.exp(loss)  # Convert to perplexity
+'''
+def calculate_perplexity(text, model, tokenizer, device):
+    encodings = tokenizer(text, return_tensors="pt")
+    max_length = model.config.n_positions
+    stride = 512
+    seq_len = encodings.input_ids.size(1)
+
+    nll_sum = 0.0
+    n_tokens = 0
+    prev_end_loc = 0
+    for begin_loc in range(0, seq_len, stride):
+        end_loc = min(begin_loc + max_length, seq_len)
+        trg_len = end_loc - prev_end_loc  # may be different from stride on last loop
+        input_ids = encodings.input_ids[:, begin_loc:end_loc].to(device)
+        target_ids = input_ids.clone()
+        target_ids[:, :-trg_len] = -100
+
+        with torch.no_grad():
+            outputs = model(input_ids, labels=target_ids)
+
+            # loss is calculated using CrossEntropyLoss which averages over valid labels
+            # N.B. the model only calculates loss over trg_len - 1 labels, because it internally shifts the labels
+            # to the left by 1.
+            neg_log_likelihood = outputs.loss
+
+        # Accumulate the total negative log-likelihood and the total number of tokens
+        num_valid_tokens = (target_ids != -100).sum().item()  # number of valid tokens in target_ids
+        batch_size = target_ids.size(0)
+        num_loss_tokens = num_valid_tokens - batch_size  # subtract batch_size due to internal label shift
+        nll_sum += neg_log_likelihood * num_loss_tokens
+        n_tokens += num_loss_tokens
+
+        prev_end_loc = end_loc
+        if end_loc == seq_len:
+            break
+
+    avg_nll = nll_sum / n_tokens  # average negative log-likelihood per token
+    ppl = torch.exp(avg_nll)
+    return ppl.item()
 
 def plot_perplexities(perplexities_train, perplexities_test, title, filename):
     plt.hist(perplexities_train, bins=np.arange(0, 500, 10), alpha=0.5, label="Train", density=True)
@@ -122,8 +162,6 @@ if __name__ == "__main__":
     with open("./Data/twitter-datasets/test_data.txt", "r", encoding='utf-8') as f:
         for line in f:
             X_test.append(line)
-    '''
-    '''
     X_train = []
     with open("./Data/twitter-datasets/train_pos_full.txt", "r", encoding='utf-8') as f:
         for line in f:
@@ -135,7 +173,7 @@ if __name__ == "__main__":
     np.random.seed(42)
     np.random.shuffle(X_train)
 
-    X_train = X_train[:100000]
+    X_train = X_train[:10000]
 
     tokenizer = AutoTokenizer.from_pretrained("gpt2")
     tokenizer.pad_token = tokenizer.eos_token
@@ -143,6 +181,12 @@ if __name__ == "__main__":
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     print(f"Using device {device}")
     model.to(device)
+
+    perplexities = []
+    for sentence in tqdm.tqdm(X_test):
+        perplexity = calculate_perplexity(sentence, model, tokenizer, device)
+        perplexities.append(perplexity)
+    np.save("perplexities_test.npy", perplexities)
     
     perplexities = []
     for sentence in tqdm.tqdm(X_train):
@@ -150,7 +194,15 @@ if __name__ == "__main__":
         perplexities.append(perplexity)
     
     np.save("perplexities_train.npy", perplexities)
-    '''
-    plot_perplexities(np.load("perplexities_train.npy"), np.load("perplexities_test.npy"), "Perplexity distribution of train and test data", "perplexities_train_test.png")
     
+    plot_perplexities(np.load("perplexities_train.npy"), np.load("perplexities_test.npy"), "Perplexity distribution of train and test data", "perplexities_train_test.png")
+    '''
+    # calculate the statistics of the perplexities in train and test data
+    perplexities_train = np.load("perplexities_train.npy")
+    perplexities_test = np.load("perplexities_test.npy")
+    print(f"Mean perplexity of train data: {np.mean(perplexities_train)}")
+    print(f"Mean perplexity of test data: {np.mean(perplexities_test)}")
+    print(f"Standard deviation of perplexity of train data: {np.std(perplexities_train)}")
+    print(f"Standard deviation of perplexity of test data: {np.std(perplexities_test)}")
+
     
