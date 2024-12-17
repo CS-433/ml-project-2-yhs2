@@ -10,6 +10,8 @@ from itertools import chain
 import matplotlib.pyplot as plt
 import os
 import math
+from scipy import stats
+import seaborn as sns
 
 os.environ['CUDA_LAUNCH_BLOCKING'] = '1'
 os.environ['TORCH_USE_CUDA_DSA'] = '1'
@@ -30,7 +32,7 @@ class GPT2Dataset(Dataset):
 
 def pretraining():
     wandb.login()
-    wandb.init(project="gpt2-tuning")
+    wandb.init(project="gpt2-tuning-test")
 
     X_train = []
     with open("./Data/twitter-datasets/train_pos_full.txt", "r", encoding='utf-8') as f:
@@ -43,8 +45,8 @@ def pretraining():
     np.random.seed(42)
     np.random.shuffle(X_train)
 
-    X_eval = X_train[:int(len(X_train)*0.01)]
-    X_train = X_train[int(len(X_train)*0.01):]
+    X_eval = X_train[:int(len(X_train)*0.05)]
+    X_train = X_train[int(len(X_train)*0.05):]
 
     tokenizer = AutoTokenizer.from_pretrained("gpt2")
     tokenizer.pad_token = tokenizer.eos_token
@@ -57,10 +59,14 @@ def pretraining():
 
     configuration = GPT2Config.from_pretrained('gpt2')
     model = GPT2LMHeadModel.from_pretrained('gpt2', config=configuration)
+
+    device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+    model.to(device)
+
     training_args = TrainingArguments(output_dir='gpt2-tuning',
                                     evaluation_strategy="steps",
-                                    eval_steps=10000,                                  
-                                    num_train_epochs=1,
+                                    eval_steps=5000,                                  
+                                    num_train_epochs=10,
                                     per_device_train_batch_size=8,
                                     per_device_eval_batch_size=8,
                                     learning_rate=2.5e-4,
@@ -79,9 +85,9 @@ def pretraining():
     trainer = Trainer(model=model, args=training_args, train_dataset=train_set, eval_dataset=eval_set, tokenizer=tokenizer)
     trainer.train()
 
-    model.save_pretrained("gpt2-tuning")
+    model.save_pretrained("gpt2-pretrain-test")
 
-def compute_probs(model, tokenizer, sentences):
+def compute_probs(model, tokenizer, sentences, device):
     # Calculate the token-wise probabilities of the sentences
     probs = []
     for sentence in tqdm.tqdm(sentences):
@@ -93,21 +99,8 @@ def compute_probs(model, tokenizer, sentences):
         log_probs = torch.nn.functional.log_softmax(outputs.logits, dim=-1)
         log_probs = log_probs[0, range(len(input_ids[0])), input_ids[0]]
         print(log_probs)
-
-        # Calculate the probability of the sentence
-        sentence_prob = torch.sum(log_probs, dim=-1)
-        probs.append(sentence_prob)
-        print(sentence_prob)
     return probs
 
-'''
-def calculate_perplexity(sentence, model, tokenizer, device):
-    inputs = tokenizer(sentence, return_tensors="pt", truncation=True, max_length=512).to(device)
-    with torch.no_grad():
-        outputs = model(**inputs, labels=inputs["input_ids"])
-    loss = outputs.loss.item()  # Cross-entropy loss
-    return math.exp(loss)  # Convert to perplexity
-'''
 def calculate_perplexity(text, model, tokenizer, device):
     encodings = tokenizer(text, return_tensors="pt")
     max_length = model.config.n_positions
@@ -148,20 +141,26 @@ def calculate_perplexity(text, model, tokenizer, device):
     return ppl.item()
 
 def plot_perplexities(perplexities_train, perplexities_test, title, filename):
-    plt.hist(perplexities_train, bins=np.arange(0, 500, 10), alpha=0.5, label="Train", density=True)
-    plt.hist(perplexities_test, bins=np.arange(0, 500, 10), alpha=0.5, label="Test", density=True)
+    sns.set_palette("Set2")
+    bins = np.arange(0, 300, 6)
+
+    plt.hist(perplexities_train, bins=bins, alpha=0.5, label="Train", density=True, color=sns.color_palette()[0])
+    plt.hist(perplexities_test, bins=bins, alpha=0.5, label="Test", density=True, color=sns.color_palette()[1])
+
     plt.xlabel("Perplexity")
-    plt.ylabel("Frequency")
+    plt.ylabel("Density")
     plt.title(title)
     plt.legend()
     plt.savefig(filename)
+    plt.show()
 
-if __name__ == "__main__":
-    '''
+def calculate_perplexities_for_train_test_data():
     X_test = []
     with open("./Data/twitter-datasets/test_data.txt", "r", encoding='utf-8') as f:
         for line in f:
+            line = line.split(",", 1)[1]
             X_test.append(line)
+
     X_train = []
     with open("./Data/twitter-datasets/train_pos_full.txt", "r", encoding='utf-8') as f:
         for line in f:
@@ -194,15 +193,18 @@ if __name__ == "__main__":
         perplexities.append(perplexity)
     
     np.save("perplexities_train.npy", perplexities)
-    
-    plot_perplexities(np.load("perplexities_train.npy"), np.load("perplexities_test.npy"), "Perplexity distribution of train and test data", "perplexities_train_test.png")
-    '''
-    # calculate the statistics of the perplexities in train and test data
+
+def calculate_statistics_of_perplexities():
     perplexities_train = np.load("perplexities_train.npy")
     perplexities_test = np.load("perplexities_test.npy")
     print(f"Mean perplexity of train data: {np.mean(perplexities_train)}")
     print(f"Mean perplexity of test data: {np.mean(perplexities_test)}")
     print(f"Standard deviation of perplexity of train data: {np.std(perplexities_train)}")
     print(f"Standard deviation of perplexity of test data: {np.std(perplexities_test)}")
+
+if __name__ == "__main__":
+    plot_perplexities(np.load("perplexities_train.npy"), np.load("perplexities_test.npy"), "Perplexity distribution of train and test data", "perplexities_train_test.png")
+    calculate_statistics_of_perplexities()
+    
 
     
