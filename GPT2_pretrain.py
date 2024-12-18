@@ -18,6 +18,7 @@ os.environ['TORCH_USE_CUDA_DSA'] = '1'
 
 
 class GPT2Dataset(Dataset):
+    # Dataset class for GPT2
     def __init__(self, encodings):
         self.encodings = encodings
 
@@ -31,6 +32,7 @@ class GPT2Dataset(Dataset):
 
 
 def pretraining():
+    # Pretrain GPT2 model on the full dataset
     wandb.login()
     wandb.init(project="gpt2-tuning-test")
 
@@ -87,21 +89,10 @@ def pretraining():
 
     model.save_pretrained("gpt2-pretrain-test")
 
-def compute_probs(model, tokenizer, sentences, device):
-    # Calculate the token-wise probabilities of the sentences
-    probs = []
-    for sentence in tqdm.tqdm(sentences):
-        input_ids = tokenizer.encode(sentence, return_tensors='pt')
-        with torch.no_grad():
-            outputs = model(input_ids=input_ids)
-        
-        # Calculate the probability for each token
-        log_probs = torch.nn.functional.log_softmax(outputs.logits, dim=-1)
-        log_probs = log_probs[0, range(len(input_ids[0])), input_ids[0]]
-        print(log_probs)
-    return probs
 
 def calculate_perplexity(text, model, tokenizer, device):
+    # Calculate perplexity of a given text using pre-trained GPT2 model
+    # This function is adapted from https://huggingface.co/transformers/perplexity.html
     encodings = tokenizer(text, return_tensors="pt")
     max_length = model.config.n_positions
     stride = 512
@@ -141,6 +132,7 @@ def calculate_perplexity(text, model, tokenizer, device):
     return ppl.item()
 
 def plot_perplexities(perplexities_train, perplexities_test, title, filename):
+    # Plot the distribution of perplexities of train and test data
     sns.set_palette("Set2")
     bins = np.arange(0, 300, 6)
 
@@ -155,6 +147,7 @@ def plot_perplexities(perplexities_train, perplexities_test, title, filename):
     plt.show()
 
 def calculate_perplexities_for_train_test_data():
+    # Calculate perplexities for train and test data
     X_test = []
     with open("./Data/twitter-datasets/test_data.txt", "r", encoding='utf-8') as f:
         for line in f:
@@ -195,6 +188,7 @@ def calculate_perplexities_for_train_test_data():
     np.save("perplexities_train.npy", perplexities)
 
 def calculate_statistics_of_perplexities():
+    # Calculate mean and standard deviation of perplexities of train and test data
     perplexities_train = np.load("perplexities_train.npy")
     perplexities_test = np.load("perplexities_test.npy")
     print(f"Mean perplexity of train data: {np.mean(perplexities_train)}")
