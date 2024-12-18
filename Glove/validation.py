@@ -16,35 +16,42 @@ from torch.nn.utils.rnn import pack_padded_sequence, pad_packed_sequence
 
 
 def load_embeddings(embedding_file):
+    # Load the embeddings
     return np.load(embedding_file)
 
 def load_vocab(vocab_file):
+    # Load the vocabulary
     with open(vocab_file, "rb") as f:
         return pickle.load(f)
 
 def get_word_vector(word, vocab, embeddings):
+    # Get the word vector for a word
     index = vocab.get(word, -1)
     if index == -1:
-        return np.zeros(embeddings.shape[1])  # Handle out-of-vocabulary words
+        return np.zeros(embeddings.shape[1])  
     return embeddings[index]
 
 def text_to_embedding(text, vocab, embeddings):
+    # Convert a text to an embedding by taking the mean of the word vectors
     words = text.strip().split()
     vectors = [get_word_vector(word, vocab, embeddings) for word in words]
     return np.mean(vectors, axis=0)  
 
 def text_to_embedding_padding(text, vocab, embeddings, max_length):
+    # Convert a text to an embedding by padding the word vectors
     words = text.strip().split()
     vectors = [get_word_vector(word, vocab, embeddings) for word in words]
     vectors = vectors[:max_length] + [np.zeros(embeddings.shape[1])] * (max_length - len(vectors))
     return np.array(vectors).flatten()
 
 def prepare_embedding_rnn(text, vocab, embeddings):
+    # Prepare the embedding for the RNN
     words = text.strip().split()
     vectors = [get_word_vector(word, vocab, embeddings) for word in words]
     return np.array(vectors)
 
 def prepare_data(df, vocab, embeddings, mode='mean'):
+    # Prepare the data for the classifier, turn the text into embeddings
     X, y = [], []
     for idx, line in df.iterrows():
         if mode == 'mean':
@@ -55,9 +62,11 @@ def prepare_data(df, vocab, embeddings, mode='mean'):
     return np.array(X), np.array(y)
 
 class NN_classifier:
-    def __init__(self):
+    # Simple neural network classifier
+    def __init__(self, mode='mean'):
+        first_layer = 20 if mode == 'mean' else 20 * 50
         self.model = torch.nn.Sequential(
-            torch.nn.Linear(400, 10),
+            torch.nn.Linear(first_layer, 10),
             torch.nn.ReLU(),
             torch.nn.Linear(10, 10),
             torch.nn.ReLU(),
@@ -68,6 +77,7 @@ class NN_classifier:
         self.optimizer = torch.optim.Adam(self.model.parameters(), lr=0.01)
 
     def fit(self, X, y):
+        # Fit the neural network classifier
         X = torch.tensor(X, dtype=torch.float32)
         y = torch.tensor(y, dtype=torch.float32).reshape(-1, 1)
         batch_size = 128
@@ -84,18 +94,21 @@ class NN_classifier:
                 self.optimizer.step()
     
     def predict(self, X):
+        # Predict the labels
         X = torch.tensor(X, dtype=torch.float32)
         y_pred = self.model(X)
         return [1 if y > 0.5 else 0 for y in y_pred]
 
 class RNN_classifier:
+    # RNN classifier, bidirectional LSTM
     def __init__(self):
         self.model = torch.nn.LSTM(20, 50, num_layers=2, batch_first=True, dropout=0.5, bidirectional=True)
-        self.fc = torch.nn.Linear(100, 1)  # 50 * 2 for bidirectional
+        self.fc = torch.nn.Linear(100, 1) 
         self.loss_fn = torch.nn.BCEWithLogitsLoss()
         self.optimizer = torch.optim.AdamW(chain(self.model.parameters(), self.fc.parameters()), lr=0.001, weight_decay=1e-5)
 
     def fit(self, X, y, device, x_val=None, y_val=None):
+        # Fit the RNN classifier
         X = [torch.tensor(x, dtype=torch.float32) for x in X]
         y = torch.tensor(y, dtype=torch.float32).reshape(-1, 1)
         lengths = torch.tensor([len(x) for x in X], dtype=torch.int64)
@@ -136,6 +149,7 @@ class RNN_classifier:
 
     
     def predict(self, X, device):
+        # Predict the labels
         X = [torch.tensor(x, dtype=torch.float32) for x in X]
         lengths = torch.tensor([len(x) for x in X], dtype=torch.int64)
         X_padded = torch.nn.utils.rnn.pad_sequence(X, batch_first=True)
@@ -162,10 +176,11 @@ if __name__ == "__main__":
     embeddings = load_embeddings("validation/embeddings.npy")
     vocab = load_vocab("vocab.pkl")
 
+    mode = 'padding'
     # Prepare data
-    X_train, y_train = prepare_data(train_df, vocab, embeddings, mode='padding')
-    X_val, y_val = prepare_data(val_df, vocab, embeddings, mode='padding')
-    X_test, y_test = prepare_data(test_df, vocab, embeddings, mode='padding')
+    X_train, y_train = prepare_data(train_df, vocab, embeddings, mode=mode)
+    X_val, y_val = prepare_data(val_df, vocab, embeddings, mode=mode)
+    X_test, y_test = prepare_data(test_df, vocab, embeddings, mode=mode)
 
     # Standardize the data
     mean, std = X_train.mean(axis=0), X_train.std(axis=0)
@@ -174,7 +189,7 @@ if __name__ == "__main__":
     X_test = (X_test - mean) / std
 
     # Train on different classifiers, logistic regression, random forest, xgboost, naive bayes
-    classifiers = [NN_classifier(), LogisticRegression(), RandomForestClassifier(), XGBClassifier(), GaussianNB()]
+    classifiers = [NN_classifier(mode), LogisticRegression(), RandomForestClassifier(), XGBClassifier(), GaussianNB()]
 
     for classifier in classifiers:
         y_train = [1 if y == 1 else 0 for y in y_train]

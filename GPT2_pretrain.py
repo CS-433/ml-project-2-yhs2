@@ -1,3 +1,6 @@
+import os
+os.environ["KMP_DUPLICATE_LIB_OK"]="TRUE"
+
 from transformers import GPT2Tokenizer, GPT2LMHeadModel, GPT2Config, GPT2ForSequenceClassification
 from transformers import GPT2Config, GPT2LMHeadModel
 from transformers import TrainingArguments, Trainer, AutoTokenizer
@@ -8,7 +11,6 @@ import wandb
 import numpy as np
 from itertools import chain
 import matplotlib.pyplot as plt
-import os
 import math
 from scipy import stats
 import seaborn as sns
@@ -197,6 +199,7 @@ def calculate_statistics_of_perplexities():
     print(f"Standard deviation of perplexity of test data: {np.std(perplexities_test)}")
 
 if __name__ == "__main__":
+    calculate_perplexities_for_train_test_data()
     plot_perplexities(np.load("perplexities_train.npy"), np.load("perplexities_test.npy"), "Perplexity distribution of train and test data", "perplexities_train_test.png")
     calculate_statistics_of_perplexities()
     
