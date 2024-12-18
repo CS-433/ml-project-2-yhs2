@@ -13,4 +13,4 @@ BoW_TFIDF/__pycache__
 BoW_TFIDF/wandb
 BoW_TFIDF/.virtual_documents/
 .ipynb_checkpoints/
-
+.virtual_documents/
