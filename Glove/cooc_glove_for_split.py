@@ -66,7 +66,7 @@ def glove(path):
 
 
 if __name__ == "__main__":
-    wandb.login(key='28b1af102774ea945af3ad3deeb378ef8541e375')
+    wandb.login()
     run = wandb.init(name='load_tweet_dataset_1',
                     project='epfl_ml_project2', 
                     tags=['load_dataset'],

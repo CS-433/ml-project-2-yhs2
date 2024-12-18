@@ -47,21 +47,16 @@ def apply_embeddings_to_test_data(test_data_file, vocab, embeddings, classifier,
             writer.writerow([idx, prediction_label])
 
 if __name__ == "__main__":
-    embeddings = load_embeddings("embeddings.npy")
+    embeddings = load_embeddings("artifacts/embeddings.npy")
     vocab = load_vocab("vocab.pkl")
     
-    # Prepare training data
     X, y = prepare_training_data("./twitter-datasets/train_pos_full.txt", "./twitter-datasets/train_neg_full.txt", vocab, embeddings)
     
-    # Split the data into training and validation sets
     X_train, X_val, y_train, y_val = train_test_split(X, y, test_size=0.2, random_state=42)
     
-    # Train a classifier
     classifier = LogisticRegression()
     classifier.fit(X_train, y_train)
     
-    # Validate the classifier
     y_pred = classifier.predict(X_val)
     
-    # Apply the classifier to test data
     apply_embeddings_to_test_data("./twitter-datasets/test_data.txt", vocab, embeddings, classifier, "predictions.csv")
