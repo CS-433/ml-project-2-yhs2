@@ -10,3 +10,9 @@ This project aims to predict the sentiment of tweets using machine learning mode
 - `GPT2-pretrain.py`: Pretrain the GPT2 model on the full train set, then apply the model to calculate the perplexity in test set to reflect the distribution similarity of train and test set.
 - `EDA.ipynb`: Exploratory data analysis for the dataset.
 - `load_data_example.ipynb`: The sample program to load the training data that the experiment use (part of full training data) from wandb.
+
+
+### Install the dependency
+```bash
+conda create --name <env> --file requirements.txt
+```
