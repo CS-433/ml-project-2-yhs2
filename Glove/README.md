@@ -1,27 +1,47 @@
 # GloVe based classification
 
+### File description
 
-### Generating Word Embeddings: 
+- `build_vocab.sh`: Script to build the vocabulary from the training tweets.
+- `cut_vocab.sh`: Script to filter the vocabulary.
+- `pickle_vocab.py`: Mapping each word to a unique index.
+- `cooc.py`: Generate the co-occurrence matrix from the training tweets.
+- `glove_solution.py`: Using GloVe to generate word embeddings base on the co-occurrence matrix.
+- `cooc_glove_for_split`: Generate the word embeddings base on the part of the training set which is used for the whole experiment. 
+- `validation.py`: Contains the implementation of various classifiers (NN_classifier, LogisticRegression, RandomForestClassifier, XGBClassifier, GaussianNB, RNN_classifier) for prediction.
+- `generate_test.py`: Generate the predicted labels for test set for submission.
 
-Load the training tweets given in `pos_train.txt`, `neg_train.txt` (or a suitable subset depending on RAM requirements), and construct a a vocabulary list of words appearing at least 5 times. This is done running the following commands. Note that the provided `cooc.py` script can take a few minutes to run, and displays the number of tweets processed.
+
+### Generate Word Embeddings: 
+
+Build the vocabulary. 
 
 ```bash
 build_vocab.sh
 cut_vocab.sh
 python3 pickle_vocab.py
-python3 cooc.py
 ```
 
-Now given the co-occurrence matrix and the vocabulary, it is not hard to train GloVe word embeddings, that is to compute an embedding vector for wach word in the vocabulary. We suggest to implement SGD updates to train the matrix factorization, as in
+Generate the word embedding for the whole training set.
+```bash
+python3 cooc.py
+python3 glove_solution.py
+```
 
-```glove_solution.py```
+Generate the word embedding for the training set used in experiment.
+```bash
+python3 cooc_glove_for_split.py
+```
 
-Once you tested your system on the small set of 10% of all tweets, we suggest you run on the full datasets `pos_train_full.txt`, `neg_train_full.txt`
 
-### Building a Text Classifier:
+### Train the model:
 
-In ```validation.py```, we use NN_classifier(), LogisticRegression(), RandomForestClassifier(), XGBClassifier(), GaussianNB() as classifier, which takes the sentence embedding as input. The way to calculate the sentence embedding in this file contains 1. take the mean value of word embeddings in a sentence. 2. concatenate the word embeddings and then
-pad/truncate it to a fixed length. You can change 'mode' in prepare_data() function to select the method.
+In ```validation.py```, we use NN_classifier(), LogisticRegression(), RandomForestClassifier(), XGBClassifier(), GaussianNB() as classifier, which takes the sentence embedding as input. The way to calculate the sentence embedding in this file contains 1. take the mean value of word embeddings in a sentence. 2. concatenate the word embeddings and then pad/truncate it to a fixed length. You can change 'mode' in prepare_data() function to select the method.
 
 We also use RNN for this task, which could directly take the sequence of word embeddings as input.
+
+```bash
+python3 validation.py
+```
+will directly run all the models and print the result.
 
