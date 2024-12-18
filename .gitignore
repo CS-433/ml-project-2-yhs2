@@ -8,3 +8,6 @@ BERT-based/artifacts/
 BERT-based/output/
 BERT-based/wandb/
 BERT-based/__pycache__/
+BoW_TFIDF/cr7_reunited-cr7
+BoW_TFIDF/__pycache__
+BoW_TFIDF/wandb
