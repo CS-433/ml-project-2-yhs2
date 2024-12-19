@@ -8,7 +8,6 @@ from sklearn.metrics import accuracy_score, f1_score
 import wandb
 import pandas as pd
 from sklearn.ensemble import RandomForestClassifier
-from xgboost import XGBClassifier
 import torch
 from itertools import chain
 from sklearn.naive_bayes import GaussianNB
@@ -211,11 +210,10 @@ if __name__ == "__main__":
     print("Best hyperparameters: ", hyperparameters)
     '''
 
-    # Train on different classifiers, logistic regression, random forest, xgboost, naive bayes
+    # Train on different classifiers, logistic regression, random forest, naive bayes
     classifiers = [NN_classifier(mode), 
                    LogisticRegression(), 
                    RandomForestClassifier(n_estimators=200, max_depth=100, min_samples_split=5, min_samples_leaf=2), 
-                   XGBClassifier(), 
                    GaussianNB()]
 
     for classifier in classifiers:
