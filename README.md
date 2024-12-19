@@ -24,7 +24,7 @@ conda activate ml
 ## Dataset
 For most experiments, we used 10% of the original training set, it can be found on Wandb [https://wandb.ai/hsunyu/epfl_ml_project2/artifacts/dataset/twitter_dataset_1/v0]. However, our code automatically downloads the dataset.
 
-### Feature Generations
+## Feature Generations
 For baseline models, BoW, TF-IDF, and GloVe were used, whereas raw text data was tokenized and passed to BERT-based models. 
 
 ## Hyperparameter Tuning
