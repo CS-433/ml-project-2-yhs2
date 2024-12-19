@@ -12,6 +12,8 @@ This project aims to predict the sentiment of tweets using machine learning mode
 - `BoW_TFIDF/`
   - `helper.py`: Contains helper functions used across models for BoW and TF-IDF embeddings.
   - `{model_name}.ipynb`: Scripts for hyperparameter tuning on `{model_name}`, such as logistic regression, naive Bayes, and random forest, using BoW or TF-IDF embeddings.
+- `Data`
+  - Contains dataset, simply download twitter-datasets form AICrowd inside.
 
 ## Install Dependencies
 ```bash
