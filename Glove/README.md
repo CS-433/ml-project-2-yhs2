@@ -33,6 +33,9 @@ Generate the word embedding for the training set used in experiment.
 python3 cooc_glove_for_split.py
 ```
 
+### Hyper-parameter tuning for Random Forest
+
+In ```validtion.py```, RF_hyperparameter_tuning() function conduct grid search to find the best combination of hyperparameters.
 
 ### Train the model:
 
