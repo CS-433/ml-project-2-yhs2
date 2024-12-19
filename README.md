@@ -21,11 +21,16 @@ conda env create -f environment.yml
 conda activate ml
 ```
 
-## Get the Dataset for Validation
-For most of our experiment, we used 10% of the original training set, you can find it on wandb [https://wandb.ai/hsunyu/epfl_ml_project2/artifacts/dataset/twitter_dataset_1/v0]. Or running our code could automatically download the dataset.
+## Dataset
+For most experiments, we used 10% of the original training set, it can be found on Wandb [https://wandb.ai/hsunyu/epfl_ml_project2/artifacts/dataset/twitter_dataset_1/v0]. Hoewver, our code automatically downloads the dataset.
+
+### Feature Generations
+For baseline models, BoW, TF-IDF, and GloVe were used, whereas raw text data was tokenized and passed to BERT-based models. 
 
 ## Hyperparameter Tuning
 Hyperparameter Tuning details/results are shown in the README.md of each directory.
+
+However, due to computational expense, cross-validation was not done. Instead, all hyperparameters were tuned using train/validation/test split with validation accuracy as a metric.
 
 ## Contribution Highlights
 - **DIMP-Loss**: A weighted loss function that prioritizes relevant data points, improving model training efficiency.
