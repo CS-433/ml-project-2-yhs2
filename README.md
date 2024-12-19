@@ -21,7 +21,7 @@ conda create --name <env> --file requirements.txt
 ```
 
 ## Get the dataset for validation
-For most of our experiment, we used 10% of the original training set, you can find it on wandb [https://wandb.ai/hsunyu/epfl_ml_project2/artifacts/dataset/twitter_dataset_1/v0].
+For most of our experiment, we used 10% of the original training set, you can find it on wandb [https://wandb.ai/hsunyu/epfl_ml_project2/artifacts/dataset/twitter_dataset_1/v0]. Or running our code could automatically download the dataset.
 
 ## Contribution Highlights
 - **DIMP-Loss**: A weighted loss function that prioritizes relevant data points, improving model training efficiency.
