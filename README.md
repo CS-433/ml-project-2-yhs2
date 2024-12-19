@@ -1,18 +1,29 @@
-# Tweet Sentiment Classification
-
-### Introduction
-This project aims to predict the sentiment of tweets using machine learning models, which contains baseline embedding generate model such as GloVe, Bow, TF-IDF, classification model such as logistic regression, random forest, neural network, recurrent neural network and so on. The main contribution of this work is DIMP-Loss, a weighted loss function that prioritizes relevant data points, improving model training. Using BERTweet-Large and the full dataset, our final model achieves 92.1% accuracy on AICrowd. We also provide data selection guidelines for practitioners.
-
-### File description
-- `BERT-based`: Contains the BERT based model for tweet sentiment prediction.
-- `Glove`: Contains the scripts that create embedding based on Glove and different models for prediction. 
-- `Sean`: Contains the scripts that create embedding based on BoW and TF-IDF and different models for prediction. 
-- `GPT2-pretrain.py`: Pretrain the GPT2 model on the full train set, then apply the model to calculate the perplexity in test set to reflect the distribution similarity of train and test set.
-- `EDA.ipynb`: Exploratory data analysis for the dataset.
-- `load_data_example.ipynb`: The sample program to load the training data that the experiment use (part of full training data) from wandb.
+# Introduction
+This project aims to predict the sentiment of tweets using machine learning models, which include baseline embedding generation models such as GloVe, BoW, and TF-IDF, as well as classification models like logistic regression, random forest, neural network, and recurrent neural network. The main contribution of this work is DIMP-Loss, a weighted loss function that prioritizes relevant data points, improving model training. Using BERTweet-Large and the full dataset, our final model achieves 92.1% accuracy on AICrowd. We also provide data selection guidelines for practitioners.
 
 
-### Install the dependency
+## File Structure
+- `EDA/`
+  - `EDA.ipynb`: Contains basic exploratory data analysis (EDA) of the dataset.
+  - `GPT2_pretrain.py`: Pretrain the GPT2 model on the full training dataset and compute perplexity on the test set to compare the distribution similarity between training and test data.
+
+- `BoW_TFIDF/`
+  - `helper.py`: Contains helper functions used across models for BoW and TF-IDF embeddings.
+  - `{model_name}.ipynb`: Scripts for hyperparameter tuning on `{model_name}`, such as logistic regression, naive Bayes, and random forest, using BoW or TF-IDF embeddings.
+
+- `Glove/`
+  - Scripts to create embeddings based on GloVe and train different models for prediction.
+
+- `BERT-based/`
+  - Contains the BERT-based model for tweet sentiment prediction, including fine-tuning and evaluation scripts.
+
+# Additional Information
+### Install Dependencies
 ```bash
 conda create --name <env> --file requirements.txt
 ```
+
+### Contribution Highlights
+- **DIMP-Loss**: A weighted loss function that prioritizes relevant data points, improving model training efficiency.
+- **Final Model Performance**: Utilizing BERTweet-Large on the full dataset, achieving 92.1% accuracy on AICrowd.
+- **Practical Guidelines**: Recommendations for data selection to enhance model performance.
