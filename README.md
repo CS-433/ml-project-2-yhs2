@@ -17,7 +17,8 @@ This project aims to predict the sentiment of tweets using machine learning mode
 
 ## Install Dependencies
 ```bash
-conda create --name <env> --file requirements.txt
+conda env create -f environment.yml
+conda activate ml
 ```
 
 ## Get the dataset for validation
