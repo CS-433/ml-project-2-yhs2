@@ -36,7 +36,7 @@ python3 cooc_glove_for_split.py
 
 ### Train the model:
 
-In ```validation.py```, we use NN_classifier(), LogisticRegression(), RandomForestClassifier(), XGBClassifier(), GaussianNB() as classifier, which takes the sentence embedding as input. The way to calculate the sentence embedding in this file contains 1. take the mean value of word embeddings in a sentence. 2. concatenate the word embeddings and then pad/truncate it to a fixed length. You can change 'mode' in prepare_data() function to select the method.
+In ```validation.py```, we use NN_classifier(), LogisticRegression(), RandomForestClassifier(), GaussianNB() as classifier, which takes the sentence embedding as input. The way to calculate the sentence embedding in this file contains 1. take the mean value of word embeddings in a sentence. 2. concatenate the word embeddings and then pad/truncate it to a fixed length. You can change 'mode' in prepare_data() function to select the method.
 
 We also use RNN for this task, which could directly take the sequence of word embeddings as input.
 
