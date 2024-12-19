@@ -5,6 +5,7 @@ import pickle
 
 
 def main():
+    # Create cooccurrence matrix
     with open("vocab.pkl", "rb") as f:
         vocab = pickle.load(f)
 

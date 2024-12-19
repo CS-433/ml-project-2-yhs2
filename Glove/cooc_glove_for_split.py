@@ -7,6 +7,7 @@ import wandb
 
 
 def cooc(path):
+    # Create cooccurrence matrix
     with open("./Glove/vocab.pkl", "rb") as f:
         vocab = pickle.load(f)
 
@@ -35,6 +36,7 @@ def cooc(path):
         pickle.dump(cooc, f, pickle.HIGHEST_PROTOCOL)
 
 def glove(path):
+    # Train Glove embeddings
     print("loading cooccurrence matrix")
     with open(path, "rb") as f:
         cooc = pickle.load(f)
@@ -66,6 +68,7 @@ def glove(path):
 
 
 if __name__ == "__main__":
+    # Load dataset
     wandb.login()
     run = wandb.init(name='load_tweet_dataset_1',
                     project='epfl_ml_project2', 
@@ -75,5 +78,6 @@ if __name__ == "__main__":
     artifact = run.use_artifact('hsunyu/epfl_ml_project2/twitter_dataset_1:v0')
     artifact_dir = artifact.download()
 
+    # Create cooccurrence matrix, then train Glove embeddings
     cooc(artifact_dir)
     glove("Glove/artifacts/cooc.pkl")
