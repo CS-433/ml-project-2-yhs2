@@ -20,6 +20,9 @@ This project aims to predict the sentiment of tweets using machine learning mode
 conda create --name <env> --file requirements.txt
 ```
 
+## Get the dataset for validation
+For most of our experiment, we used 10% of the original training set, you can find it on wandb [https://wandb.ai/hsunyu/epfl_ml_project2/artifacts/dataset/twitter_dataset_1/v0].
+
 ## Contribution Highlights
 - **DIMP-Loss**: A weighted loss function that prioritizes relevant data points, improving model training efficiency.
 - **Final Model Performance**: Utilizing BERTweet-Large on the full dataset, achieving 92.1% accuracy on AICrowd.
