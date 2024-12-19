@@ -1,33 +1,85 @@
-This code is primarily adapted from the [Huggingface GitHub repository](https://github.com/huggingface/transformers/tree/main/examples/pytorch/text-classification) and the [supplementary material of our new paper](https://openreview.net/forum?id=oI5tZaWkF9). Please note that the code has not been officially released and the paper is still under review. Therefore, do not distribute the code or the OpenReview link.
+This code is adapted from the [Huggingface GitHub repository](https://github.com/huggingface/transformers/tree/main/examples/pytorch/text-classification) and the [supplementary material of our new paper](https://openreview.net/forum?id=oI5tZaWkF9). Please note that the code and the paper are not officially released, as the paper is still under review. Do not distribute the code or the OpenReview link.
 
-## Running the code for our best model
-this will automatically download the twitter dataset and the model weights
+---
+
+## Running the Code for Our Best Model
+
+To automatically download the Twitter dataset and the model weights, run:
+
 ```bash
 python run.py
 ```
-After running the code, the results will be saved in wandb. Additionally, you can find the submission file in the output folder at `./output/test_submission.txt`.
-If you want to change some hyperparameters, please refer config.py file.
 
-## Running the code for training the bert model with DIMP-Loss
-This example is on our experimental dataset (full dataset will date a long time), you can change the dataset in the config.py file.
+- **Results:** After running, results will be saved in Weights & Biases (W&B).
+- **Submission File:** A submission file will be available at `./output/test_submission.txt`.
 
-### First step, train the bert model on validation set
+To modify hyperparameters, refer to the `config.py` file.
+
+---
+
+## Training the BERT Model with DIMP-Loss
+
+This example uses our experimental dataset (full dataset training may take longer). You can change the dataset in the `config.py` file.
+
+### Step 1: Train the BERT Model on the Validation Set
+
+Run the following command:
+
 ```bash
 python run.py config_val.json
 ```
-the result will automatically save the model in wandb. you should copy the model api to the config_train.json file. e.g. `hsunyu/epfl_ml_project2/twitter_1_only_valid_bert_base:v1`
 
-### Second step, train the bert model with DIMP-Loss
-To use the model you have trained from last step, update the `twomodelloss_wandb_model2` key in the `config_train.json` file. Alternatively, you can run the following command to use the provided validation model.
+- **Results:** The trained model will be automatically saved in W&B.
+- **Next Step:** Copy the model API to the `config_train.json` file. Example: `hsunyu/epfl_ml_project2/twitter_1_only_valid_bert_base:v1`.
+
+### Step 2: Train the BERT Model with DIMP-Loss
+
+To use the previously trained model, update the `twomodelloss_wandb_model2` key in `config_train.json`. Alternatively, use the provided validation model by running:
+
 ```bash
 python run.py config_train.json
 ```
-Note: this will not provide the submission file, because the testing is from our experimental dataset.
 
-## Important parameters in config.py
+- **Note:** This will not generate a submission file because testing uses our experimental dataset.
+
+---
+
+## Important Parameters in `config.py`
+
+- **`model_name_or_path`**:  
+  Specifies the pretrained model path or identifier from Hugging Face's model hub (e.g., `bert-base-uncased`, `vinai/bertweet-base`, `hsunyu/epfl_ml_project2/twitter_full_bertweet_large:v1`).
+  If using a W&B model, set `use_wandb_model` to `True` and specify the model name in the `wandb_model` key.
+
+- **`problem_type`**:  
+  Defines the task type. Examples include:
+  - `"single_label_classification"`: For text classification with cross-entropy loss (CE-Loss).
+  - `"single_label_classification_myloss_v2"`: For the DIMP-Loss approach.
+
+- **`wandb_dataset`**:  
+  Specifies the W&B dataset artifact name for training and evaluation. Examples:
+  - `hsunyu/epfl_ml_project2/twitter_full_datasets:v3`: Full dataset.
+  - `hsunyu/epfl_ml_project2/twitter_dataset_1:v0`: Experimental dataset.
+
+- **`use_wandb_model`**:  
+  Boolean indicating whether to load a pretrained model from a W&B artifact. Useful for reproducibility.
+
+- **`twomodelloss_wandb_model2`**:  
+  Refers to the W&B artifact for the validation model used in DIMP-Loss training. Example: `hsunyu/epfl_ml_project2/twitter_1_only_valid_bert_base:v1`.
+
+- **`per_device_train_batch_size`**:  
+  Defines the batch size per device during training. Default: `128`.
+
+- **`num_train_epochs`**:  
+  Specifies the total number of training epochs. Default: `3.0`.
+
+You can adjust these parameters in the `config.json` file to fine-tune the model behavior and experiment settings.
+
+---
 
 ## Citation
-Please cite our paper if you use DIMP-Loss in your work:
+
+If you use DIMP-Loss in your work, please cite our paper:
+
 ```bibtex
 @misc{kuo2024llmgenerated,
     title={Not All LLM-Generated Data Are Equal: Rethinking Data Weighting in Text Classification},
@@ -38,3 +90,4 @@ Please cite our paper if you use DIMP-Loss in your work:
     primaryClass={cs.LG}
 }
 ```
+
