@@ -72,9 +72,27 @@ python run.py config_train.json
 - **`num_train_epochs`**:  
   Specifies the total number of training epochs. Default: `3.0`.
 
+### Contrastive Learning Parameters
+We also tried self-supervise contrastive learning ([SimCSE](https://arxiv.org/abs/2104.08821)) in this project. However, it does not impact a lot in this case thus we did not discuss in main part of report. following parameters are related to contrastive learning:
+
+- **`contrastive_learning`**:  
+A boolean indicating whether to use contrastive learning during training. This approach improves representation learning by encouraging the model to distinguish between similar and dissimilar samples.
+
+- **`contrastive_learning_weight`**:  
+Defines the weight assigned to the contrastive loss component during training. Higher values emphasize the contrastive loss more.
+
+- **`temperature`**:
+Specifies the temperature parameter for scaling logits in the contrastive loss computation. Lower values make the model more confident in its predictions.
+
+
 You can adjust these parameters in the `config.json` file to fine-tune the model behavior and experiment settings.
 
 ---
+
+### Hyperparameter Tuning and Experiment Results in Weights & Biases
+Most of the experiment results for BERT-based approaches use default hyperparameters from Hugging Face. However, we also conducted hyperparameter tuning in this project. You can explore the experiment results in Weights & Biases using the following links:
+* [Dataset Size](https://wandb.ai/hsunyu/epfl_ml_project2/sweeps/24iegrm8?nw=nwuserhsunyu)
+* [Contrastive Weight](https://wandb.ai/hsunyu/epfl_ml_project2/sweeps/7eu8aso3?nw=nwuserhsunyu)
 
 ## Citation
 
