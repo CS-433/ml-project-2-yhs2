@@ -1,13 +1,5 @@
 This code is primarily adapted from the [Huggingface GitHub repository](https://github.com/huggingface/transformers/tree/main/examples/pytorch/text-classification) and the [supplementary material of our new paper](https://openreview.net/forum?id=oI5tZaWkF9). Please note that the code has not been officially released and the paper is still under review. Therefore, do not distribute the code or the OpenReview link.
 
-## Installation
-```bash
-conda install pytorch torchvision torchaudio pytorch-cuda=11.8 -c pytorch -c nvidia
-python -m pip install --upgrade pip
-python -m pip install transformers datasets evaluate wandb scikit-learn
-python -m pip install --upgrade accelerate
-```
-
 ## Running the code for our best model
 this will automatically download the twitter dataset and the model weights
 ```bash

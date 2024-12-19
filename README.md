@@ -3,19 +3,16 @@ This project aims to predict the sentiment of tweets using machine learning mode
 
 
 ## File Structure
+- `BERT-based/`
+  - Contains the BERT-based model for tweet sentiment prediction, including fine-tuning, evaluation scripts, and `run.py`. Refer to `BERT-based/README.md` for more details.
+- `Glove/`
+  - Scripts to create embeddings based on GloVe and train different models for prediction. Refer to `Glove/README.md` for more details.
 - `EDA/`
   - `EDA.ipynb`: Contains basic exploratory data analysis (EDA) of the dataset.
   - `GPT2_pretrain.py`: Pretrain the GPT2 model on the full training dataset and compute perplexity on the test set to compare the distribution similarity between training and test data.
-
 - `BoW_TFIDF/`
   - `helper.py`: Contains helper functions used across models for BoW and TF-IDF embeddings.
   - `{model_name}.ipynb`: Scripts for hyperparameter tuning on `{model_name}`, such as logistic regression, naive Bayes, and random forest, using BoW or TF-IDF embeddings.
-
-- `Glove/`
-  - Scripts to create embeddings based on GloVe and train different models for prediction.
-
-- `BERT-based/`
-  - Contains the BERT-based model for tweet sentiment prediction, including fine-tuning and evaluation scripts.
 
 ## Install Dependencies
 ```bash
