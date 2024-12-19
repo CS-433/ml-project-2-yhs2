@@ -17,13 +17,12 @@ This project aims to predict the sentiment of tweets using machine learning mode
 - `BERT-based/`
   - Contains the BERT-based model for tweet sentiment prediction, including fine-tuning and evaluation scripts.
 
-# Additional Information
-### Install Dependencies
+## Install Dependencies
 ```bash
 conda create --name <env> --file requirements.txt
 ```
 
-### Contribution Highlights
+## Contribution Highlights
 - **DIMP-Loss**: A weighted loss function that prioritizes relevant data points, improving model training efficiency.
 - **Final Model Performance**: Utilizing BERTweet-Large on the full dataset, achieving 92.1% accuracy on AICrowd.
 - **Practical Guidelines**: Recommendations for data selection to enhance model performance.
