@@ -19,7 +19,7 @@
   "validation_file": null,
   "test_file": null,
   "problem_type": "single_label_classification", 
-  "name": "twitter_full_bertweet_large_test",
+  "name": "twitter_full_bertweet_large_DIMP_test",
   "use_wandb_dataset": true,
   "wandb_dataset": "hsunyu/epfl_ml_project2/twitter_full_datasets:v3",
   "wandb_augmented_dataset": null,
