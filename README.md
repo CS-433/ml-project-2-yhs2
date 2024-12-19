@@ -1,7 +1,6 @@
 # Introduction
 This project aims to predict the sentiment of tweets using machine learning models, which include baseline embedding generation models such as GloVe, BoW, and TF-IDF, as well as classification models like logistic regression, random forest, neural network, and recurrent neural network. The main contribution of this work is DIMP-Loss, a weighted loss function that prioritizes relevant data points, improving model training. Using BERTweet-Large and the full dataset, our final model achieves 92.1% accuracy on AICrowd. We also provide data selection guidelines for practitioners.
 
-
 ## File Structure
 - `BERT-based/`
   - Contains the BERT-based model for tweet sentiment prediction, including fine-tuning, evaluation scripts, and `run.py`. Refer to `BERT-based/README.md` for more details.
